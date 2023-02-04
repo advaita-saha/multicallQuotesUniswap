@@ -11,8 +11,7 @@ require('dotenv').config();
 // set the pool addresses and the quoter address
 const INFURA_URL 	= process.env.INFURA_URL;
 const provider 		= new ethers.providers.JsonRpcProvider(INFURA_URL);
-const poolAddress2 	= "0x290a6a7460b308ee3f19023d2d00de604bcf5b42";          // MATIC/ETH Pool
-const poolAddress1 	= "0x2F62f2B4c5fcd7570a709DeC05D68EA19c82A9ec";          // WBTC/ETH Pool
+
 const quoterAddress = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6";         // Quoter Contract
 const pools = [
 	"0x290a6a7460b308ee3f19023d2d00de604bcf5b42",	// MATIC/ETH
@@ -120,6 +119,8 @@ async function multicaller(tokenData){
 async function main() {
 	let callArr = [];
 
+	// Get the basic token info and generate the calldata
+	// for each token pair, so that we can initiate the multicall
 	for(let i=0; i<pools.length; i++){
 		console.log("Generating request for Pool Address: ", pools[i]);
 		const encData = await getPrice(1, pools[i]);
