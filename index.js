@@ -19,8 +19,9 @@ const pools = [
 	"0x2F62f2B4c5fcd7570a709DeC05D68EA19c82A9ec",	// SHIB/ETH
 	"0x1d42064Fc4Beb5F8aAF85F4617AE8b3b5B8Bd801",	// UNI/ETH
 ];
- 
-async function getPrice(inputAmount, poolAddress){
+
+// Get the token details for each pool
+async function getToken(inputAmount, poolAddress){
 
   // Instantiate the pool contract
   const poolContract = new ethers.Contract(
@@ -77,6 +78,7 @@ async function getPrice(inputAmount, poolAddress){
   // Generate the calldata for the multicall packaged 
   // in an object with the token symbols
   const call = {
+	inputAmount: inputAmount,
 	tokenSymbol0: tokenSymbol0,
 	tokenSymbol1: tokenSymbol1,
 	calldata: {
@@ -111,7 +113,7 @@ async function multicaller(tokenData){
 	for(let i=0; i<roundData[1].length; i++){
 		const amountOut = ethers.utils.formatUnits(roundData[1][i].toString(), 18);
 		console.log('=========');
-		console.log(`1 ${tokenData[i].tokenSymbol0} price is ${amountOut} ${tokenData[i].tokenSymbol1}`);
+		console.log(`${tokenData[i].inputAmount} ${tokenData[i].tokenSymbol0} price is ${amountOut} ${tokenData[i].tokenSymbol1}`);
 		console.log('=========');
 	}
 }
@@ -122,11 +124,12 @@ async function main() {
 	// Get the basic token info and generate the calldata
 	// for each token pair, so that we can initiate the multicall
 	for(let i=0; i<pools.length; i++){
-		console.log("Generating request for Pool Address: ", pools[i]);
-		const encData = await getPrice(1, pools[i]);
+		console.log(`Generating request for Pool Address (Index - ${i}): `, pools[i]);
+		const encData = await getToken(1, pools[i]);
 		callArr.push(encData);
 	}
 
+	// Execute the multicall
 	await multicaller(callArr);
 
 }
